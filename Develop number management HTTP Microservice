@@ -1,0 +1,54 @@
+from flask import Flask, request, jsonify
+
+app = Flask(_name_)
+
+# A dictionary to store numbers (simulating a database)
+numbers = {}
+
+# Endpoint to add a new number
+@app.route('/add_number', methods=['POST'])
+def add_number():
+    data = request.get_json()
+    number_id = data.get('id')
+    number_value = data.get('value')
+
+    if number_id is None or number_value is None:
+        return jsonify({'error': 'Both id and value are required'}), 400
+
+    numbers[number_id] = number_value
+    return jsonify({'message': 'Number added successfully'}), 201
+
+# Endpoint to retrieve a number by ID
+@app.route('/get_number/<int:number_id>', methods=['GET'])
+def get_number(number_id):
+    number_value = numbers.get(number_id)
+    if number_value is None:
+        return jsonify({'error': 'Number not found'}), 404
+    return jsonify({'id': number_id, 'value': number_value}), 200
+
+# Endpoint to update the value of an existing number
+@app.route('/update_number/<int:number_id>', methods=['PUT'])
+def update_number(number_id):
+    data = request.get_json()
+    new_number_value = data.get('value')
+
+    if number_id not in numbers:
+        return jsonify({'error': 'Number not found'}), 404
+
+    if new_number_value is None:
+        return jsonify({'error': 'New value is required'}), 400
+
+    numbers[number_id] = new_number_value
+    return jsonify({'message': 'Number updated successfully'}), 200
+
+# Endpoint to delete a number by ID
+@app.route('/delete_number/<int:number_id>', methods=['DELETE'])
+def delete_number(number_id):
+    if number_id not in numbers:
+        return jsonify({'error': 'Number not found'}), 404
+
+    del numbers[number_id]
+    return jsonify({'message': 'Number deleted successfully'}), 200
+
+if _name_ == '_main_':
+    app.run(debug=True)
